@@ -291,13 +291,19 @@ function formatOrderDateForFilename(orderDateString) {
     // Try to parse common date formats from Excel
     var dateStr = orderDateString.toLowerCase().trim();
     
-    // Handle formats like "Tuesday 29th", "Wednesday 30th", etc.
+    // Handle formats like "Tuesday 29th", "Wednesday 30th", "Friday 1st", etc.
     if (dateStr.includes('29th')) {
         return '2025-07-29'; // Based on your example file
     } else if (dateStr.includes('30th')) {
         return '2025-07-30';
     } else if (dateStr.includes('31st')) {
         return '2025-07-31';
+    } else if (dateStr.includes('1st')) {
+        return '2025-08-01'; // Friday 1st = August 1st
+    } else if (dateStr.includes('2nd')) {
+        return '2025-08-02';
+    } else if (dateStr.includes('3rd')) {
+        return '2025-08-03';
     }
     
     // Try to extract date if it's in a different format
@@ -397,14 +403,13 @@ function downloadPDF() {
     pdf.text('Total Paper Types: ' + paperTypes.length + ' | Total Batches: ' + totalBatches + ' | Total Rows: ' + totalRows, 20, yPos);
     yPos += 15;
 
-    // Column positions (better spacing for sequence column)
+    // Column positions - remove sequence column from PDF, keep it simple
     var colPositions = {
-        paperCode: { x: 15 },
-        paperType: { x: 40 },
-        sequence: { x: 75 },
-        textBatch: { x: 95 },
-        coverBatch: { x: 125 },
-        rows: { x: 160 }
+        paperCode: { x: 20 },
+        paperType: { x: 50 },
+        textBatch: { x: 100 },
+        coverBatch: { x: 130 },
+        rows: { x: 165 }
     };
 
     // Process each paper type
@@ -425,12 +430,11 @@ function downloadPDF() {
         pdf.text(items[0].paperCode + ' - ' + paperType + ' (' + items.length + ' batches)', 17, yPos + 3);
         yPos += 15;
 
-        // Column headers (added Sequence, removed Order Date for PDF)
+        // Column headers - no sequence column in PDF
         pdf.setFontSize(8);
         pdf.setFont(undefined, 'bold');
         pdf.text('Paper Code', colPositions.paperCode.x, yPos);
         pdf.text('Paper Type', colPositions.paperType.x, yPos);
-        pdf.text('Seq', colPositions.sequence.x, yPos);
         pdf.text('Text Batch', colPositions.textBatch.x, yPos);
         pdf.text('Cover Batch', colPositions.coverBatch.x, yPos);
         pdf.text('Rows', colPositions.rows.x, yPos);
