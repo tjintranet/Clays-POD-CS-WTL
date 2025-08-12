@@ -144,20 +144,29 @@ function processExcelData(jsonData) {
             continue;
         }
         
-        // More flexible validation - check if we have the essential data
+        // Updated column mapping for new Excel structure:
+        // A: Paper Type, B: File Quant, C: Bk Quant (ignore), D: Text, E: Covers, F: Date, G: Style
         var paperType = row[0] ? String(row[0]).trim() : '';
-        var quantity = row[1];
-        var textBatch = row[2] ? String(row[2]).trim() : '';
-        var coverBatch = row[3] ? String(row[3]).trim() : '';
-        var orderDate = row[4] ? String(row[4]).trim() : '';
+        var quantity = row[1]; // File Quant (column B)
+        var textBatch = row[3] ? String(row[3]).trim() : ''; // Text batch (column D)
+        var coverBatch = row[4] ? String(row[4]).trim() : ''; // Cover batch (column E)
+        var orderDate = row[5] ? String(row[5]).trim() : ''; // Date (column F)
+        var style = row[6] ? String(row[6]).trim() : ''; // Style (column G)
         
         console.log('Row', i + 1, 'data:', {
             paperType: paperType,
             quantity: quantity,
             textBatch: textBatch,
             coverBatch: coverBatch,
-            orderDate: orderDate
+            orderDate: orderDate,
+            style: style
         });
+        
+        // Skip rows where Style (column G) equals "4pp"
+        if (style.toLowerCase() === '4pp') {
+            console.log('Skipping row', i + 1, '- Style is 4pp');
+            continue;
+        }
         
         // Check if we have the minimum required data
         if (!paperType || !quantity || !textBatch || !coverBatch) {
@@ -464,7 +473,7 @@ function downloadPDF() {
                 pdf.setFontSize(8);
                 pdf.text('Paper Code', colPositions.paperCode.x, yPos);
                 pdf.text('Paper Type', colPositions.paperType.x, yPos);
-                pdf.text('Seq', colPositions.sequence.x, yPos);
+                //pdf.text('Seq', colPositions.sequence.x, yPos);
                 pdf.text('Text Batch', colPositions.textBatch.x, yPos);
                 pdf.text('Cover Batch', colPositions.coverBatch.x, yPos);
                 pdf.text('Rows', colPositions.rows.x, yPos);
