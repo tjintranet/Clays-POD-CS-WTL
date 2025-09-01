@@ -552,7 +552,7 @@ function downloadPDF() {
 
     // Process main batch data first
     if (batchData.length > 0) {
-        yPos = addBatchDataToPDF(pdf, batchData, 'Main Batch Data', yPos, colPositions);
+        yPos = addBatchDataToPDF(pdf, batchData, 'ColourStream', yPos, colPositions);
     }
 
     // Process 4pp data - force onto new page
@@ -560,7 +560,23 @@ function downloadPDF() {
         // Force new page for 4pp entries
         pdf.addPage();
         yPos = 20;
-        yPos = addBatchDataToPDF(pdf, fourppData, '4pp for Titan', yPos, colPositions);
+        
+        // Add the same header as the first page
+        pdf.setFontSize(14);
+        pdf.setFont(undefined, 'bold');
+        pdf.text('PoD Work List - Batch Processing', 20, yPos);
+        yPos += 10;
+        
+        if (orderDate) {
+            pdf.setFontSize(10);
+            pdf.setFont(undefined, 'normal');
+            pdf.text('Order Date: ' + orderDate, 20, yPos);
+            yPos += 15;
+        } else {
+            yPos += 5;
+        }
+        
+        yPos = addBatchDataToPDF(pdf, fourppData, 'Titan 4pp', yPos, colPositions);
     }
 
     // Add page numbers
