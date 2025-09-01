@@ -29,6 +29,7 @@ function setupEventListeners() {
         excelFileInput.click(); 
     });
     excelUploadArea.addEventListener('dragover', handleDragOver);
+    excelUploadArea.addEventListener('dragleave', handleDragLeave);
     excelUploadArea.addEventListener('drop', handleExcelDrop);
     excelFileInput.addEventListener('change', handleExcelFileSelect);
 
@@ -39,6 +40,11 @@ function setupEventListeners() {
 function handleDragOver(e) {
     e.preventDefault();
     e.currentTarget.classList.add('dragover');
+}
+
+function handleDragLeave(e) {
+    e.preventDefault();
+    e.currentTarget.classList.remove('dragover');
 }
 
 function handleExcelDrop(e) {
@@ -235,19 +241,22 @@ function displayResults() {
     // Process main batch data
     if (batchData.length > 0) {
         displayMainBatchData();
-        document.getElementById('resultsCard').style.display = 'block';
+        showCard('resultsCard');
     }
 
     // Process 4pp data
     if (fourppData.length > 0) {
         display4ppData();
-        document.getElementById('fourppCard').style.display = 'block';
+        showCard('fourppCard');
     }
 
     document.getElementById('downloadPdfBtn').disabled = false;
     
-    // Clear upload status message
-    document.getElementById('uploadStatus').innerHTML = '';
+    // Clear upload status message and show success
+    showStatus('Excel file processed successfully!', 'success');
+    setTimeout(function() {
+        document.getElementById('uploadStatus').innerHTML = '';
+    }, 3000);
 }
 
 function displayMainBatchData() {
@@ -345,17 +354,17 @@ function displaySummary(paperTypeCount, batchCount, totalRows) {
     var summaryHtml = '<div class="row mb-3">';
     summaryHtml += '<div class="col-md-4">';
     summaryHtml += '<div class="alert alert-info">';
-    summaryHtml += '<strong>Paper Types:</strong> ' + paperTypeCount;
+    summaryHtml += '<i class="bi bi-clipboard-data me-2"></i><strong>Paper Types:</strong> ' + paperTypeCount;
     summaryHtml += '</div>';
     summaryHtml += '</div>';
     summaryHtml += '<div class="col-md-4">';
     summaryHtml += '<div class="alert alert-success">';
-    summaryHtml += '<strong>Total Batches:</strong> ' + batchCount;
+    summaryHtml += '<i class="bi bi-collection me-2"></i><strong>Total Batches:</strong> ' + batchCount;
     summaryHtml += '</div>';
     summaryHtml += '</div>';
     summaryHtml += '<div class="col-md-4">';
     summaryHtml += '<div class="alert alert-warning">';
-    summaryHtml += '<strong>Total Rows:</strong> ' + totalRows;
+    summaryHtml += '<i class="bi bi-grid-3x3-gap me-2"></i><strong>Total Rows:</strong> ' + totalRows;
     summaryHtml += '</div>';
     summaryHtml += '</div>';
     summaryHtml += '</div>';
@@ -367,7 +376,7 @@ function display4ppSummary(paperTypeCount, batchCount, totalRows) {
     var summary = document.getElementById('fourppSummary');
     
     var summaryHtml = '<div class="alert alert-warning">';
-    summaryHtml += '<strong>4pp Entries:</strong> ' + paperTypeCount + ' paper types, ';
+    summaryHtml += '<i class="bi bi-info-circle-fill me-2"></i><strong>4pp Entries:</strong> ' + paperTypeCount + ' paper types, ';
     summaryHtml += batchCount + ' batches, ' + totalRows + ' total rows';
     summaryHtml += '</div>';
 
@@ -732,6 +741,12 @@ function addBatchDataToPDF(pdf, dataArray, sectionTitle, startYPos, colPositions
     return yPos;
 }
 
+function showCard(cardId) {
+    var card = document.getElementById(cardId);
+    card.style.display = 'block';
+    card.classList.add('fade-in');
+}
+
 function clearAll() {
     batchData = [];
     fourppData = [];
@@ -756,8 +771,18 @@ function clearAll() {
 function showStatus(message, type) {
     var uploadStatus = document.getElementById('uploadStatus');
     var alertDiv = document.createElement('div');
-    alertDiv.className = 'alert alert-' + type;
-    alertDiv.textContent = message;
+    alertDiv.className = 'alert alert-' + type + ' fade-in';
+    alertDiv.innerHTML = '<i class="bi bi-' + getStatusIcon(type) + ' me-2"></i>' + message;
     uploadStatus.innerHTML = '';
     uploadStatus.appendChild(alertDiv);
+}
+
+function getStatusIcon(type) {
+    switch(type) {
+        case 'success': return 'check-circle-fill';
+        case 'danger': return 'exclamation-triangle-fill';
+        case 'warning': return 'exclamation-circle-fill';
+        case 'info': return 'info-circle-fill';
+        default: return 'info-circle';
+    }
 }
